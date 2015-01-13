@@ -7,20 +7,30 @@ game.preload = function() {
 };
 
 game.create = function() {
-    this.posx = 0;
-    this.posy = 0;
+    this.sprite.add('player', 100, 100, 16, 16, 'player');
+    this.sprite.add('enemy', 200, 200, 16, 16, 'player');
 };
 
 game.update = function(dt) {
-    if(this.keyboard.isDown['left']) { this.posx -= 10; }
-    if(this.keyboard.isDown['right']) { this.posx += 10; }
-    if(this.keyboard.isDown['up']) { this.posy -= 10; }
-    if(this.keyboard.isDown['down']) { this.posy += 10; }
+    var posx = 0;
+    var posy = 0;
+
+    if(this.keyboard.isDown['left']) { posx -= 4; }
+    if(this.keyboard.isDown['right']) { posx += 4; }
+    if(this.keyboard.isDown['up']) { posy -= 4; }
+    if(this.keyboard.isDown['down']) { posy += 4; }
+
+    if(!this.sprite.collide('player', 'enemy', posx, 0)) {
+	this.sprite['player'].x += posx;
+    }
+    if(!this.sprite.collide('player', 'enemy', 0, posy)) {
+	this.sprite['player'].y += posy;
+    }
 };
 
 game.render = function() {
-    this.context.fill();
-    this.context.drawImage(this.image['player'], this.posx, this.posy);
+    this.sprite.render('enemy');
+    this.sprite.render('player');
 };
 
 game.preload();

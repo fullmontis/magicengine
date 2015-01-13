@@ -1,13 +1,19 @@
 // MagicEngine: an HTML5 framework for rapid prototyping
 
 // TODO:
-// - Sprite and collision system
+// - Sprite and collision system, groups
 // - Loading screen
 // - Tiled map display and management
 // - Sound extension
 // - State Manager
 
+// canvas API extension
 (function () {
+    Audio.prototype.playFromStart = function() {
+	this.currentTime = 0;
+	this.play();
+    };
+
     CanvasRenderingContext2D.prototype.BG_COLOR = "#ccc"; 
 
     CanvasRenderingContext2D.prototype.rect = 
@@ -103,6 +109,19 @@ function Magic( width, height, parentId ) {
 
     var _this = this;
 
+    // useable audio extension
+    this.audioCodec = (function() {
+	var audio = document.createElement("audio");
+	var canplayogg = (typeof audio.canPlayType === "function" && 
+			  audio.canPlayType("audio/ogg") !== "");
+
+	if (canplayogg) {
+            return "ogg";
+	} else {
+            return "aac";
+	}
+    })();
+
     // game logic update frequency
     this.FPS = 60;
     
@@ -162,7 +181,9 @@ function Magic( width, height, parentId ) {
 	this.load.pending.push(imageId);
     }.bind(this);
 
-    this.load.sound = function( soundId, url ) {
+    this.load.sound = function( soundId, oggUrl, aacUrl ) {
+	var url;
+	if( this.audioCodec == 'ogg' ) url = oggUrl; else url = aacUrl;
 	this.sound[soundId] = new Audio();
 	this.sound[soundId].oncanplaythrough = this.loaded(soundId);
 	this.sound[soundId].src = url;
@@ -170,7 +191,6 @@ function Magic( width, height, parentId ) {
     }.bind(this);
 
     this.load.map = function( mapId, url ) {
-
 	var xhr = new XMLHttpRequest();
 	var _this = this;
 
@@ -185,6 +205,64 @@ function Magic( width, height, parentId ) {
 	this.load.pending.push(mapId);
     }.bind(this);
     
+    // Sprite manager
+    this.sprite = {
+	add: function( spriteId,  x, y, width, height, imageId, anchorX, anchorY ) {
+	    this[spriteId] = {};
+
+	    this[spriteId].image = imageId;
+	    this[spriteId].x = x;
+	    this[spriteId].y = y;
+	    this[spriteId].width = width;
+	    this[spriteId].height = height;
+	    this[spriteId].anchor = {};
+	    this[spriteId].anchor.x = anchorX || 0;
+	    this[spriteId].anchor.y = anchorY || anchorX || 0;
+	    
+	    
+	},
+
+	// Checks collision between two sprites ids
+	// The offset variables set the amount to add to each sprite position
+	// (default to 0)
+	collide: function( spriteId1, spriteId2, offsetX1, offsetY1, offsetX2, offsetY2 ) {
+	    offsetX1 = offsetX1 || 0;
+	    offsetY1 = offsetY1 || 0;
+	    offsetX2 = offsetX2 || 0;
+	    offsetY2 = offsetY2 || 0;
+
+	    var x1 = this[spriteId1].x - this[spriteId1].anchor.x + offsetX1;
+	    var y1 = this[spriteId1].y - this[spriteId1].anchor.y + offsetY1;
+	    var w1 = this[spriteId1].width;
+	    var h1 = this[spriteId1].height;
+	    var x2 = this[spriteId2].x - this[spriteId2].anchor.x + offsetX2;
+	    var y2 = this[spriteId2].y - this[spriteId2].anchor.y + offsetY2;
+	    var w2 = this[spriteId2].width;
+	    var h2 = this[spriteId2].height;
+
+	    if( x1 < x2 + w2 &&
+		x1 + w1 > x2 &&
+		y1 < y2 + h2 &&
+		y1 + h1 > y2 ){
+		    return true;
+		} else {
+		    return false; 
+		}
+	},
+	render: function( spriteId ){
+	    var sprite = this[spriteId];
+	    this.magic.context.drawImage( 
+		this.magic.image[sprite.image],
+		sprite.x - sprite.anchor.x,
+		sprite.y - sprite.anchor.y );
+	},
+	remove: function( spriteId ){
+	    this[spriteId] = {};
+	},
+	magic: _this
+    };
+    
+    // The main game loop
     var last = Date.now();
 
     this.mainLoop = function () {
@@ -207,6 +285,7 @@ function Magic( width, height, parentId ) {
     };
 
     this.renderWrapper = function() {
+	this.context.fill();
 	this.render();
 	requestAnimationFrame( this.renderWrapper.bind(this) );
     };
@@ -347,4 +426,3 @@ function Magic( width, height, parentId ) {
 	return keys;
     })();
 }
-
