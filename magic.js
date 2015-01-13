@@ -251,15 +251,44 @@ function Magic( width, height, parentId ) {
 	},
 	render: function( spriteId ){
 	    var sprite = this[spriteId];
-	    this.magic.context.drawImage( 
-		this.magic.image[sprite.image],
+	    _this.context.drawImage( 
+		_this.image[sprite.image],
 		sprite.x - sprite.anchor.x,
 		sprite.y - sprite.anchor.y );
 	},
 	remove: function( spriteId ){
 	    this[spriteId] = {};
 	},
-	magic: _this
+	group: {
+	    // add a group
+	    add: function( groupId ) {
+		this[groupId] = [];
+	    },
+
+	    // Push a sprite to a group
+	    push: function( spriteId, groupId ) {
+		this[groupId].push(spriteId);
+	    },
+
+	    // Check if there is collision between a single sprite and a group 
+	    collide: function( spriteId, groupId, offsetX, offsetY ) {
+		for( var i=0; i < this[groupId].length; i++ ){
+		    if(_this.sprite.collide(spriteId, this[groupId][i], offsetX, offsetY))
+			return this[groupId][i];
+		}
+		return false;
+	    },
+
+	    render: function( groupId ) {
+		for( var i=0; i < this[groupId].length; i++ ){
+		    var sprite = _this.sprite[this[groupId][i]];
+		    _this.context.drawImage( 
+			_this.image[sprite.image],
+			sprite.x - sprite.anchor.x,
+			sprite.y - sprite.anchor.y );
+		}
+	    }
+	}
     };
     
     // The main game loop
