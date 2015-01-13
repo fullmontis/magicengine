@@ -4,7 +4,7 @@ game.preload = function() {
     this.load.image('player','img/player.png');
     this.load.image('wall','img/wall.png');
     this.load.sound('step', 'snd/step.wav');
-    //this.load.map('map', 'map/map.json');
+    this.load.map('map', 'map/map.json');
 };
 
 game.create = function() {
