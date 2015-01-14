@@ -7,7 +7,7 @@ game.preload = function() {
     this.load.map('map', 'map/map.json');
 };
 
-game.create = function() {
+game.state['game'].create = function() {
     this.sprite.add('player', 100, 100, 16, 16, 'player');
     this.sprite.add('wall1', 200, 200, 16, 16, 'wall');
     this.sprite.add('wall2', 250, 200, 16, 16, 'wall');
@@ -21,9 +21,9 @@ game.create = function() {
     this.sprite.group.push('wall3','wall');
     this.sprite.group.push('wall4','wall');
     this.sprite.group.push('wall5','wall');
-};
+}.bind(game);
 
-game.update = function(dt) {
+game.state['game'].update = function(dt) {
     var posx = 0;
     var posy = 0;
 
@@ -40,11 +40,11 @@ game.update = function(dt) {
 	this.sprite['player'].y += posy;
     }
 
-};
+}.bind(game);
 
-game.render = function() {
+game.state['game'].render = function() {
     this.sprite.group.render('wall');
     this.sprite.render('player');
-};
+}.bind(game);
 
-game.preload();
+game.start();

@@ -6,6 +6,7 @@
 // - Tiled map display and management
 // - Sound extension
 // - State Manager
+// - Tweening
 
 // canvas API extension
 (function () {
@@ -14,7 +15,7 @@
 	this.play();
     };
 
-    CanvasRenderingContext2D.prototype.BG_COLOR = "#ccc"; 
+    CanvasRenderingContext2D.prototype.fillColor = "#ccc"; 
 
     CanvasRenderingContext2D.prototype.rect = 
 	function( x, y, w, h, color, alpha ) {
@@ -79,7 +80,7 @@
 	};
 
     CanvasRenderingContext2D.prototype.text = 
-	function( text, x, y, color, alpha ) {
+	function( text, x, y, color, alpha, font ) {
 	    if( x === undefined ||
 		y === undefined ||
 		text === undefined ) {
@@ -87,12 +88,15 @@
 	    }
 
 	    this.save();
+	    this.font = font || this.font;
 	    this.fillStyle = color || "#000";
+
 	    if( alpha == 0 ) { 
 		this.globalAlpha = 0; 
 	    } else {
 		this.globalAlpha = alpha || 1; 	
 	    };
+
 	    this.fillText( text, x, y );
 	    this.restore();
 	};
@@ -101,7 +105,7 @@
 	function() {
 	    this.rect( 0, 0, 
 		       this.canvas.width, this.canvas.height, 
-		       this.BG_COLOR );
+		       this.fillColor );
 	};
 })();
 
@@ -124,7 +128,7 @@ function Magic( width, height, parentId ) {
 
     // game logic update frequency
     this.FPS = 60;
-    
+
     this.preload = function(){};
     this.create  = function(){};
     this.update  = function(){};
@@ -141,6 +145,60 @@ function Magic( width, height, parentId ) {
     this.canvas.oncontextmenu = function() { return false; };
 
     this.context = this.canvas.getContext('2d');
+    this.context.font = "30px Arial";
+
+    // background color
+    this.context.fillColor = '#fff';
+
+    // State management
+    //
+    // Each State has 4 main functions:
+    // - create, where the resources are loaded
+    // - update, where the game logic happens
+    // - render, where the stuff is printed on the screen
+
+    // TODO: add destroy(), destroyUpdate(), destroyRender(), 
+    // createUpdate(), createRender() to the functions of each state
+    
+    // Boot is a special state used for the loading screen
+    // Game is the main game state
+    this.state = {
+	boot: {},
+	game: {},
+	current: 'boot',
+	changeTo: function( newState ) {
+	    this.current = newState;
+	    this[this.current].create();
+	},
+	getCurrent: function() {
+	    return this[this.current];
+	}
+    };
+
+    this.state['boot'].update = function() {
+	this.loaded = 100*_this.load.complete.length/_this.load.pending.length;
+	this.loaded = this.loaded.toFixed(0);
+    };
+
+    this.state['boot'].render = function() {
+	_this.context.drawImage(this.img, 50, 50);
+	_this.context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
+	_this.context.text('FULLMONTIS', 200, 180);
+	_this.context.text('LOADING ' + this.loaded + '%', 240, 240, '#777', 1, '17px arial');
+    };
+
+    this.state['game'].update = function() {
+    };
+
+    this.state['game'].render = function() {
+    };
+
+    // Game starts here
+    this.start = function() {
+	this.state['boot'].img = new Image();
+	this.state['boot'].img.onload = this.preloadWrapper.bind(this);
+	this.state['boot'].img.src = 'img/boot.png';
+    };
 
     this.load = {};
     this.image = {};
@@ -168,8 +226,7 @@ function Magic( width, height, parentId ) {
 		}
 		
 		// start the actual game
-		this.create();
-		this.mainLoop();
+		this.state.changeTo('game');
 	    }
 	}.bind(this);
     };
@@ -199,7 +256,7 @@ function Magic( width, height, parentId ) {
 		_this.loaded( mapId, 'map', JSON.parse(xhr.responseText) )();
 	    }
 	};
-	xhr.open("GET", url, true);
+	xhr.open('GET', url, true);
 	xhr.send();
 
 	this.load.pending.push(mapId);
@@ -218,8 +275,6 @@ function Magic( width, height, parentId ) {
 	    this[spriteId].anchor = {};
 	    this[spriteId].anchor.x = anchorX || 0;
 	    this[spriteId].anchor.y = anchorY || anchorX || 0;
-	    
-	    
 	},
 
 	// Checks collision between two sprites ids
@@ -306,18 +361,25 @@ function Magic( width, height, parentId ) {
 	requestAnimationFrame( this.renderWrapper.bind(this) );
     };
 
+    this.preloadWrapper = function() {
+	this.preload();
+	this.mainLoop();
+    };
+
     this.updateWrapper = function() {
 	this.mouse.update();
-	this.update();
+	this.state.getCurrent().update();
 	this.keyboard.clear();
 	setTimeout( this.updateWrapper.bind(this), 1000 / this.FPS );
     };
 
     this.renderWrapper = function() {
 	this.context.fill();
-	this.render();
+	this.state.getCurrent().render();
 	requestAnimationFrame( this.renderWrapper.bind(this) );
     };
+
+    // Input
 
     // Mouse input
     this.mouse = (function( magic ){
