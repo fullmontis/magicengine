@@ -516,4 +516,42 @@ function Magic( width, height, parentId ) {
 
 	return keys;
     })();
+
+    // randomizers
+
+    this.dice = {
+	roll: function( numberOfFaces, numberOfDices, startFrom ) {
+
+	startFrom = startFrom || 0;
+	numberOfDices = numberOfDices || 1;
+
+	var total = 0;
+	
+	for( var i=0; i < numberOfDices; i++ ) {
+	    total += Math.floor(Math.random()*numberOfFaces) + startFrom; 
+	}
+
+	return total;
+	}
+    };
+
+    this.deck = {
+	add: function( deckId, cards ) {
+	    
+	    // cards is the array of cards we are going to manipulate
+	    this[deckId] = cards;
+
+	    return this[deckId];
+	},
+	addList: function( deckId, numberOfCards ) {
+	    this[deckId] = [];
+
+	    for( var i=0; i<numberOfCards; i++ ) {
+		this[deckId].push(i);
+	    }
+
+	    return this[deckId];
+	}
+	
+    };
 }
