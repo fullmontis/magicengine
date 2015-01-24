@@ -113,7 +113,9 @@ function Magic( width, height, parentId ) {
 
     var _this = this;
 
-    // useable audio extension
+    this.preload = function() {};
+
+    // Find useable audio extensions for the browser
     this.audioCodec = (function() {
 	var audio = document.createElement("audio");
 	var canplayogg = (typeof audio.canPlayType === "function" && 
@@ -129,11 +131,7 @@ function Magic( width, height, parentId ) {
     // game logic update frequency
     this.FPS = 60;
 
-    this.preload = function(){};
-    this.create  = function(){};
-    this.update  = function(){};
-    this.render  = function(){};
-
+    // The main canvas element on which we are going to operate
     this.canvas = document.createElement('canvas');
 
     // inject canvas into DOM
@@ -199,6 +197,9 @@ function Magic( width, height, parentId ) {
 	this.state['boot'].img.onload = this.preloadWrapper.bind(this);
 	this.state['boot'].img.src = 'img/boot.png';
     };
+
+
+    // Assets loading and management
 
     this.load = {};
     this.image = {};
@@ -347,13 +348,7 @@ function Magic( width, height, parentId ) {
     };
     
     // The main game loop
-    var last = Date.now();
-
     this.mainLoop = function () {
-	var now = Date.now();
-	var dt = now-last;
-	last = now;
-
 	// set timeout for game logic
 	setTimeout( this.updateWrapper.bind(this), 1000 / this.FPS );
 
@@ -517,7 +512,7 @@ function Magic( width, height, parentId ) {
 	return keys;
     })();
 
-    // randomizers
+    // Randomizers
 
     this.dice = {
 	roll: function( numberOfFaces, numberOfDices, startFrom ) {
