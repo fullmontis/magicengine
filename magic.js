@@ -18,7 +18,7 @@
     CanvasRenderingContext2D.prototype.fillColor = "#ccc"; 
 
     CanvasRenderingContext2D.prototype.rect = 
-	function( x, y, w, h, color, alpha ) {
+	function( x, y, w, h, color, alpha, stroke ) {
 	    if( x === undefined ||
 		y === undefined ||
 		w === undefined ||
@@ -27,12 +27,18 @@
 	    }
 	    this.save();
 	    this.fillStyle = color || "#000";
+	    this.strokeStyle = color || "#000";
 	    if( alpha == 0 ) { 
 		this.globalAlpha = 0; 
 	    } else {
 		this.globalAlpha = alpha || 1; 	
 	    };
-	    this.fillRect( x, y, w, h );
+	    if( stroke ) {
+		this.strokeRect( x, y, w, h );
+	    } else {
+		this.fillRect( x, y, w, h );
+	    }
+
 	    this.restore();
 	};
 
@@ -174,15 +180,20 @@ function Magic( width, height, parentId ) {
     };
 
     this.state['boot'].update = function() {
-	this.loaded = 100*_this.load.complete.length/_this.load.pending.length;
-	this.loaded = this.loaded.toFixed(0);
+	this.loaded = _this.load.complete.length/_this.load.pending.length;
     };
 
     this.state['boot'].render = function() {
 	_this.context.drawImage(this.img, 50, 50);
 	_this.context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
 	_this.context.text('FULLMONTIS', 200, 180);
-	_this.context.text('LOADING ' + this.loaded + '%', 240, 240, '#777', 1, '17px arial');
+
+	var barWidth = _this.canvas.width - 20;
+	var barHeight = 10;
+	var barX = 10;
+	var barY = _this.canvas.height - 20;
+	_this.context.rect( barX-1.5, barY-1.5, barWidth+3, barHeight+3, '#666', 1, true );
+	_this.context.rect( barX, barY, barWidth*this.loaded, barHeight, '#333' );
     };
 
     this.state['game'].update = function() {
@@ -265,7 +276,7 @@ function Magic( width, height, parentId ) {
     
     // Sprite manager
     this.sprite = {
-	add: function( spriteId,  x, y, width, height, imageId, anchorX, anchorY ) {
+	add: function( spriteId, x, y, width, height, imageId, anchorX, anchorY ) {
 	    this[spriteId] = {};
 
 	    this[spriteId].image = imageId;
