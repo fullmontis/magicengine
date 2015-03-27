@@ -7,7 +7,9 @@
  - State Manager
  - Randomizers
  - remove bindings to functions since they are ugly as hell and make the source unreadable
-
+ - remove _this variable
+ - put input on separate class
+ - create class for State
 */
 
 // canvas API extension
@@ -175,7 +177,7 @@ function Magic( width, height, parentId, lockMouse ) {
     this.context.fillColor = '#fff';
 
     // State management
-    //
+
     // Each State has 4 main functions:
     // - create, where the resources are loaded
     // - update, where the game logic happens
@@ -185,7 +187,9 @@ function Magic( width, height, parentId, lockMouse ) {
     // createUpdate(), createRender() to the functions of each state
     
     // Boot is a special state used for the loading screen
-    // Game is the main game state
+    // Game is the main game state,a nd the default the game is in 
+    // after boot
+
     this.state = {
 	boot: {},
 	game: {},
@@ -290,13 +294,13 @@ function Magic( width, height, parentId, lockMouse ) {
 
     this.load.map = function( mapId, url ) {
 	var xhr = new XMLHttpRequest();
-	var _this = this;
 
 	xhr.onreadystatechange = function() {
 	    if( xhr.readyState == 4 ) {
-		_this.loaded( mapId, 'map', JSON.parse(xhr.responseText) )();
+		this.loaded( mapId, 'map', JSON.parse(xhr.responseText) )();
 	    }
-	};
+	}.bind(this);
+
 	xhr.open('GET', url, true);
 	xhr.send();
 
