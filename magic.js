@@ -6,6 +6,7 @@
  - Sound extension
  - State Manager
  - Randomizers
+ - remove bindings to functions since they are ugly as hell and make the source unreadable
 
 */
 
@@ -202,8 +203,8 @@ function Magic( width, height, parentId, lockMouse ) {
 	update: function() {
 	    this.getCurrent().update();
 	},
-	render: function() {
-	    this.getCurrent().render();
+	render: function( context ) {
+	    this.getCurrent().render( context );
 	}
     };
 
@@ -211,17 +212,17 @@ function Magic( width, height, parentId, lockMouse ) {
 	this.loaded = _this.load.complete.length/_this.load.pending.length;
     };
 
-    this.state['boot'].render = function() {
-	_this.context.drawImage(this.img, 50, 50);
-	_this.context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
-	_this.context.text('FULLMONTIS', 200, 180);
+    this.state['boot'].render = function( context ) {
+	context.drawImage(this.img, 50, 50);
+	context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
+	context.text('FULLMONTIS', 200, 180);
 
 	var barWidth = _this.canvas.width - 20;
 	var barHeight = 10;
 	var barX = 10;
 	var barY = _this.canvas.height - 20;
-	_this.context.rect( barX-1.5, barY-1.5, barWidth+3, barHeight+3, '#666', 1, true );
-	_this.context.rect( barX, barY, barWidth*this.loaded, barHeight, '#333' );
+	context.rect( barX-1.5, barY-1.5, barWidth+3, barHeight+3, '#666', 1, true );
+	context.rect( barX, barY, barWidth*this.loaded, barHeight, '#333' );
     };
 
     this.state['game'].update = function() {
@@ -302,91 +303,8 @@ function Magic( width, height, parentId, lockMouse ) {
 	this.load.pending.push(mapId);
     }.bind(this);
     
-    // Sprite manager
-    this.sprite = {
-	add: function( spriteId, x, y, width, height, imageId, anchorX, anchorY ) {
-	    this[spriteId] = {};
-
-	    this[spriteId].image = imageId;
-	    this[spriteId].x = x;
-	    this[spriteId].y = y;
-	    this[spriteId].width = width;
-	    this[spriteId].height = height;
-	    this[spriteId].anchor = {};
-	    this[spriteId].anchor.x = anchorX || 0;
-	    this[spriteId].anchor.y = anchorY || anchorX || 0;
-	},
-
-	// Checks collision between two sprites ids
-	// The offset variables set the amount to add to each sprite position
-	// (default to 0)
-	collide: function( spriteId1, spriteId2, offsetX1, offsetY1, offsetX2, offsetY2 ) {
-	    offsetX1 = offsetX1 || 0;
-	    offsetY1 = offsetY1 || 0;
-	    offsetX2 = offsetX2 || 0;
-	    offsetY2 = offsetY2 || 0;
-
-	    var x1 = this[spriteId1].x - this[spriteId1].anchor.x + offsetX1;
-	    var y1 = this[spriteId1].y - this[spriteId1].anchor.y + offsetY1;
-	    var w1 = this[spriteId1].width;
-	    var h1 = this[spriteId1].height;
-	    var x2 = this[spriteId2].x - this[spriteId2].anchor.x + offsetX2;
-	    var y2 = this[spriteId2].y - this[spriteId2].anchor.y + offsetY2;
-	    var w2 = this[spriteId2].width;
-	    var h2 = this[spriteId2].height;
-
-	    if( x1 < x2 + w2 &&
-		x1 + w1 > x2 &&
-		y1 < y2 + h2 &&
-		y1 + h1 > y2 ){
-		    return true;
-		} else {
-		    return false; 
-		}
-	},
-	render: function( spriteId ){
-	    var sprite = this[spriteId];
-	    _this.context.drawImage( 
-		_this.image[sprite.image],
-		sprite.x - sprite.anchor.x,
-		sprite.y - sprite.anchor.y );
-	},
-	remove: function( spriteId ){
-	    this[spriteId] = {};
-	},
-	group: {
-	    // add a group
-	    add: function( groupId ) {
-		this[groupId] = [];
-	    },
-
-	    // Push a sprite to a group
-	    push: function( spriteId, groupId ) {
-		this[groupId].push(spriteId);
-	    },
-
-	    // Check if there is collision between a single sprite and a group 
-	    collide: function( spriteId, groupId, offsetX, offsetY ) {
-		for( var i=0; i < this[groupId].length; i++ ){
-		    if(_this.sprite.collide(spriteId, this[groupId][i], offsetX, offsetY))
-			return this[groupId][i];
-		}
-		return false;
-	    },
-
-	    render: function( groupId ) {
-		for( var i=0; i < this[groupId].length; i++ ){
-		    var sprite = _this.sprite[this[groupId][i]];
-		    _this.context.drawImage( 
-			_this.image[sprite.image],
-			sprite.x - sprite.anchor.x,
-			sprite.y - sprite.anchor.y );
-		}
-	    }
-	}
-    };
-    
     // The main game loop
+
     this.mainLoop = function () {
 	// set timeout for game logic
 	setTimeout( this.updateWrapper.bind(this), 1000 / this.FPS );
@@ -409,7 +327,7 @@ function Magic( width, height, parentId, lockMouse ) {
 
     this.renderWrapper = function() {
 	this.context.fill();
-	this.state.render();
+	this.state.render( this.context );
 	requestAnimationFrame( this.renderWrapper.bind(this) );
     };
 
@@ -589,3 +507,154 @@ function Magic( width, height, parentId, lockMouse ) {
 	
     };
 }
+
+// Sprite 
+
+function Sprite( x, y, width, height, image, anchorX, anchorY ) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.image = image;
+    this.anchor.x = anchorX || 0; 
+    this.anchor.y = anchorY || anchorX || 0;
+}
+
+Sprite.prototype.x = 0;
+Sprite.prototype.y = 0;
+Sprite.prototype.width = 16;
+Sprite.prototype.height = 16;
+
+// angle is in radians, because it allows easier computations
+
+Sprite.prototype.angle = 0;
+
+// image must be a proper image link
+// If image == -1, it renders a rectangle filled with the color 
+// defined by Sprite.prototype.fill
+
+// This makes using debug graphics much easier and quick when prototyping
+// or for placeholder graphics
+
+Sprite.prototype.image = -1;
+Sprite.prototype.fill = '#f00';
+
+// anchor point represents the point on the sprite where the x and y are positioned
+// value goes from 0 to 1
+
+Sprite.prototype.anchor = {};
+Sprite.prototype.anchor.x = 0; // 0: left, 1: right
+Sprite.prototype.anchor.y = 0; // 0: top, 1: bottom
+
+// getRenderX and getRenderY calcucate the x and y considering the anchor point. 
+// This is to avoid annoying computations when writing rendering code
+
+Sprite.prototype.getRenderX = function() {
+    return this.x - this.anchor.x * this.width;
+};
+
+Sprite.prototype.getRenderY = function() {
+    return this.y - this.anchor.y * this.height;
+};
+
+// The Sprite.prototype.update function is not called anywhere by default. 
+// Any update process is left to the developer
+
+Sprite.prototype.update = function( dt ) {};
+
+// Context is passed as variable to avoid any "magic" happening with global 
+// variables and keep code more readable
+
+// Image is rendered to the size determined by Sprite.prototype.width and height.
+// For any alternative behaviour, it is possible to overload the render function
+// in the instance of the object.
+
+// TODO: add sprite rotation
+
+Sprite.prototype.render = function( context ) {
+    if( this.image != -1 ) {
+	context.drawImage( this.image, 
+			   this.getRenderX(), this.getRenderY(), 
+			   this.width, this.height );
+    } else {
+	context.rect( this.getRenderX(), this.getRenderY(), 
+		      this.width, this.height, this.fill );
+    } 
+};
+
+// checks collision with another sprite
+
+Sprite.prototype.collidesWith = 
+    function( otherSprite, thisOffsetX, thisOffsetY, otherOffsetX, otherOffsetY ) {
+	thisOffsetX = thisOffsetX || 0;
+	thisOffsetY = thisOffsetY || 0;
+	otherOffsetX = otherOffsetX || 0;
+	otherOffsetY = otherOffsetY || 0;
+
+	var x1 = this.getRenderX() + thisOffsetX;
+	var y1 = this.getRenderY() + thisOffsetY;
+	var w1 = this.width;
+	var h1 = this.height;
+
+	var x2 = otherSprite.getRenderX() + otherOffsetX;
+	var y2 = otherSprite.getRenderY() + otherOffsetY;
+	var w2 = otherSprite.width;
+	var h2 = otherSprite.height;
+
+	if( x1 < x2 + w2 &&
+	    x1 + w1 > x2 &&
+	    y1 < y2 + h2 &&
+	    y1 + h1 > y2 ){
+		return true;
+	    } else {
+		return false; 
+	    }
+    };
+
+// Groups automate behaviour for large numbers of sprite
+
+// TODO: 
+// - add global translation and rotation of group
+// - add common resources for whole group (example: common image)
+
+function Group() {
+    this.group = {};
+};
+
+
+Group.prototype.add = function( spriteName, x, y, width, height, image, anchorX, anchorY ) {
+    this.group[spriteName] = new Sprite( x, y, width, height, image, anchorX, anchorY );
+};
+
+Group.prototype.remove = function( spriteName ) {
+    if( !this.group.hasOwnProperty( spriteName ) ) {
+	console.warn("Group.remove Warning! Trying to remove sprite " 
+		     + spriteName + " that doesn't exist!");
+    }
+
+    delete this.group[spriteName];
+};
+
+Group.prototype.update = function( dt ) {
+    for( var spriteName in this.group ) {
+	this.group[spriteName].update( dt );
+    }
+};
+
+Group.prototype.render = function( context ) {
+    for( var spriteName in this.group ) {
+	this.group[spriteName].render( context );
+    }
+};
+
+Group.prototype.collidesWith = 
+    function( otherSprite, thisOffsetX, thisOffsetY, otherOffsetX, otherOffsetY ) {
+	for( var spriteName in this.group ) {
+	    var collide = this.group[spriteName].collidesWith(
+		otherSprite, thisOffsetX, thisOffsetY, otherOffsetX, otherOffsetY );
+	    if( collide ) {
+		return true;
+	    }
+	}
+	return false;
+    };
