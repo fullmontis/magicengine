@@ -468,44 +468,6 @@ function Magic( width, height, parentId, lockMouse ) {
 
 	return keys;
     })();
-
-    // Randomizers
-
-    this.dice = {
-	roll: function( numberOfFaces, numberOfDices, startFrom ) {
-
-	startFrom = startFrom || 0;
-	numberOfDices = numberOfDices || 1;
-
-	var total = 0;
-	
-	for( var i=0; i < numberOfDices; i++ ) {
-	    total += Math.floor(Math.random()*numberOfFaces) + startFrom; 
-	}
-
-	return total;
-	}
-    };
-
-    this.deck = {
-	add: function( deckId, cards ) {
-	    
-	    // cards is the array of cards we are going to manipulate
-	    this[deckId] = cards;
-
-	    return this[deckId];
-	},
-	addList: function( deckId, numberOfCards ) {
-	    this[deckId] = [];
-
-	    for( var i=0; i<numberOfCards; i++ ) {
-		this[deckId].push(i);
-	    }
-
-	    return this[deckId];
-	}
-	
-    };
 }
 
 // Sprite 
@@ -550,11 +512,11 @@ Sprite.prototype.anchor.y = 0; // 0: top, 1: bottom
 // This is to avoid annoying computations when writing rendering code
 
 Sprite.prototype.getRenderX = function() {
-    return this.x - this.anchor.x * this.width;
+    return this.x - Math.floor(this.anchor.x * this.width);
 };
 
 Sprite.prototype.getRenderY = function() {
-    return this.y - this.anchor.y * this.height;
+    return this.y - Math.floor(this.anchor.y * this.height);
 };
 
 // The Sprite.prototype.update function is not called anywhere by default. 
@@ -615,12 +577,12 @@ Sprite.prototype.collidesWith =
 
 // TODO: 
 // - add global translation and rotation of group
-// - add common resources for whole group (example: common image)
+// - add common resources for whole group for improved performance
+//   (example: common image)
 
 function Group() {
     this.group = {};
 };
-
 
 Group.prototype.add = function( spriteName, x, y, width, height, image, anchorX, anchorY ) {
     this.group[spriteName] = new Sprite( x, y, width, height, image, anchorX, anchorY );
@@ -658,3 +620,82 @@ Group.prototype.collidesWith =
 	}
 	return false;
     };
+
+// Randomizers
+
+// These are just a simple set of tools useful for fast game prototyping
+
+// Roll dices
+
+function roll( faceNumber, diceNumber, startFrom ) {
+	startFrom = startFrom || 0;
+	diceNumber = diceNumber || 1;
+
+	var total = 0;
+	
+	for( var i=0; i < diceNumber; i++ ) {
+	    total += Math.floor(Math.random() * faceNumber) + startFrom; 
+	}
+
+	return total;
+};
+
+// Create a deck of cards
+// cards is an array. cards[0] is the top of the deck, 
+// cards[cards.length-1] is the bottom
+
+function Deck( cards ) {
+    this.cardsOriginal = cards;
+    this.reset();
+}
+
+Deck.prototype.cards = [];
+Deck.prototype.cardsOriginal = [];
+
+// generates an array 0..cardNumber-1 to be substituted for the deck
+// overwrites the deck defined in the constructot
+// not very elegant, could be improved
+
+Deck.prototype.generate = function( cardNumber ) {
+    var deck = [];
+    
+    for( var i = 0; i<cardNumber; i++ ) {
+	deck[i] = i;
+    }
+    
+    this.cardsOriginal = deck;
+    this.cards = deck;
+};
+
+// Pick card from deck, without changing anything
+
+Deck.prototype.pick = function( pos ) {
+    pos = pos || 0;
+    if( pos > this.cards.length ) pos = this.cards.length;
+    return this.cards[pos];
+};
+
+// Pick card and remove it from deck
+
+Deck.prototype.take = function( pos ) {
+    pos = pos || 0;
+    if( pos > this.cards.length ) pos = this.cards.length;
+    return this.cards.splice( pos, 1 )[0];
+};
+
+// Shuffle the deck
+
+Deck.prototype.shuffle = function() {
+    for( var i=0; i<this.cards.length; i++ ) { // TODO: how many iterations are necessary?
+	var pos = roll( this.cards.length-1, 1, 1 );
+	var temp = this.cards[pos];
+	this.cards[pos] = this.cards[0];
+	this.cards[0] = temp;
+    }
+};
+
+// restore the original card configuration
+
+Deck.prototype.reset = function() {
+    this.cards = this.cardsOriginal.slice();
+};
