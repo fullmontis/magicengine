@@ -1,4 +1,4 @@
-var game = new Magic(400, 300, 'game');
+var game = new Magic( 400, 300, 'game' );
 
 game.preload = function() {
     this.load.image('player','img/player.png');
@@ -39,7 +39,6 @@ game.state['game'].update = function(dt) {
     if(!this.sprite.group.collide('player', 'wall', 0, posy)) {
 	this.sprite['player'].y += posy;
     }
-
 }.bind(game);
 
 game.state['game'].render = function() {

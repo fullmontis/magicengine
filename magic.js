@@ -1,14 +1,16 @@
-// MagicEngine: an HTML5 framework for rapid prototyping
+/*
+ MagicEngine: an HTML5 framework for rapid prototyping
 
-// TODO:
-// - Sprite and collision system, groups
-// - Loading screen
-// - Tiled map display and management
-// - Sound extension
-// - State Manager
-// - Tweening
+ TODO:
+ - Tiled map display and management
+ - Sound extension
+ - State Manager
+ - Randomizers
+
+*/
 
 // canvas API extension
+
 (function () {
     Audio.prototype.playFromStart = function() {
 	this.currentTime = 0;
@@ -115,9 +117,11 @@
 	};
 })();
 
-function Magic( width, height, parentId ) {
+// Main class
 
-    var _this = this;
+function Magic( width, height, parentId, lockMouse ) {
+
+    var _this = this; // used for reference in objects, ugly as death, must remove
 
     this.preload = function() {};
 
@@ -145,8 +149,23 @@ function Magic( width, height, parentId ) {
     this.canvas.width = width;
     this.canvas.height = height;
 
-    // disable context menu
     this.canvas.oncontextmenu = function() { return false; };
+ 
+    // mouse pointer locking
+ 
+    if( lockMouse ) {
+	this.canvas.requestPointerLock = this.canvas.requestPointerLock ||
+            this.canvas.mozRequestPointerLock ||
+            this.canvas.webkitRequestPointerLock;
+
+	document.exitPointerLock = document.exitPointerLock ||
+            document.mozExitPointerLock ||
+            document.webkitExitPointerLock;
+	
+	this.canvas.onclick = function() {
+	    this.canvas.requestPointerLock();
+	}.bind(this);
+    }
 
     this.context = this.canvas.getContext('2d');
     this.context.font = "30px Arial";
@@ -176,6 +195,15 @@ function Magic( width, height, parentId ) {
 	},
 	getCurrent: function() {
 	    return this[this.current];
+	},
+
+	// this acts as a wrapper for the current state
+	// it is required for state change transitions
+	update: function() {
+	    this.getCurrent().update();
+	},
+	render: function() {
+	    this.getCurrent().render();
 	}
     };
 
@@ -374,14 +402,14 @@ function Magic( width, height, parentId ) {
 
     this.updateWrapper = function() {
 	this.mouse.update();
-	this.state.getCurrent().update();
+	this.state.update();
 	this.keyboard.clear();
 	setTimeout( this.updateWrapper.bind(this), 1000 / this.FPS );
     };
 
     this.renderWrapper = function() {
 	this.context.fill();
-	this.state.getCurrent().render();
+	this.state.render();
 	requestAnimationFrame( this.renderWrapper.bind(this) );
     };
 
