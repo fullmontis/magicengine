@@ -22,7 +22,7 @@ game.state['game'].create = function() {
     this.walls.add('wall3', 267, 200, 16, 16, this.image['wall']);
     this.walls.add('wall4', 20, 150, 16, 16,  this.image['wall']);
     this.walls.add('wall5', 200, 180, 16, 16, this.image['wall']);
-}.bind(game);
+};
 
 game.state['game'].update = function( dt ) {
 
@@ -43,12 +43,12 @@ game.state['game'].update = function( dt ) {
     if(!this.walls.collidesWith( this.player, 0, 0, 0, posy )) {
 	this.player.y += posy;
     }
-}.bind(game);
+};
 
 game.state['game'].render = function( context ) {
     this.walls.render( context );
     this.player.render( context );
     fps.render( context );
-}.bind(game);
+};
 
 game.start();

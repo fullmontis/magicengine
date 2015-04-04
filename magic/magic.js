@@ -50,60 +50,6 @@ function Magic( width, height, parentId, lockMouse ) {
     // background color
     this.context.fillColor = '#fff';
 
-    // State management
-
-    // Boot is a special state used for the loading screen
-
-    // Game is the main game state, and the default the game is in 
-    // after boot
-
-    this.state = {
-	boot: {},
-	game: {},
-	stack: ['boot'],
-	push: function( newState ) {
-	    this.stack.push(newState);
-	    this.getCurrent().create();
-	},
-	pop: function() {
-	    this.stack.pop();
-	},
-	getCurrent: function() {
-	    return this[this.stack[this.stack.length-1]];
-	},
-
-	// this acts as a wrapper for the current state
-	// it is required for state change transitions
-	update: function() {
-	    this.getCurrent().update();
-	},
-	render: function( context ) {
-	    this.getCurrent().render( context );
-	}
-    };
-
-    this.state['boot'] = new State( 
-	function() { // update
-	    this.loaded = _this.load.complete.length / 
-		_this.load.pending.length;
-	},
-	function( context ) { // render
-	    context.drawImage(this.img, 50, 50);
-	    context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
-	    context.text('FULLMONTIS', 200, 180);
-
-	    var barWidth = _this.canvas.width - 20;
-	    var barHeight = 10;
-	    var barX = 10;
-	    var barY = _this.canvas.height - 20;
-	    context.rect( barX-1.5, barY-1.5, 
-			  barWidth+3, barHeight+3, '#666', 1, true );
-	    context.rect( barX, barY, 
-			  barWidth*this.loaded, barHeight, '#333' );
-	});
-
-    this.state['game'] = new State();
-
     // Game starts here
     this.start = function() {
 	this.state['boot'].img = new Image();
@@ -180,6 +126,63 @@ function Magic( width, height, parentId, lockMouse ) {
 
 	this.load.pending.push(mapId);
     }.bind(this);
+
+    // State management
+
+    // Boot is a special state used for the loading screen
+
+    // Game is the main game state, and the default the game is in 
+    // after boot
+
+    this.state = {
+	boot: {},
+	game: {},
+	stack: ['boot'],
+	push: function( newState ) {
+	    this.stack.push(newState);
+	    this.getCurrent().create();
+	},
+	pop: function() {
+	    this.stack.pop();
+	},
+	getCurrent: function() {
+	    return this[this.stack[this.stack.length-1]];
+	},
+
+	// this acts as a wrapper for the current state
+	// it is required for state change transitions
+	update: function() {
+	    this.getCurrent().update();
+	},
+	render: function( context ) {
+	    this.getCurrent().render( context );
+	}
+    };
+
+    this.state['boot'] = new State( 
+	function() { // update
+	    this.loaded = _this.load.complete.length / 
+		_this.load.pending.length;
+	},
+	function( context ) { // render
+	    context.drawImage(this.img, 50, 50);
+	    context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
+	    context.text('FULLMONTIS', 200, 180);
+
+	    var barWidth = _this.canvas.width - 20;
+	    var barHeight = 10;
+	    var barX = 10;
+	    var barY = _this.canvas.height - 20;
+	    context.rect( barX-1.5, barY-1.5, 
+			  barWidth+3, barHeight+3, '#666', 1, true );
+	    context.rect( barX, barY, 
+			  barWidth*this.loaded, barHeight, '#333' );
+	});
+
+    this.state['game'] = new State();
+    this.state['game'].image = this.image;
+    this.state['game'].sound = this.sound;
+    this.state['game'].map = this.map;
 
     // Resource preload function, will be overwritten by game
 
