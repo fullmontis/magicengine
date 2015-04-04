@@ -1,0 +1,12 @@
+* TODO: 
+ - move states to own file and object to allow reusability
+ - eliminate _this variable because it makes reading the source much
+  more difficult
+ - Sprite rotation
+ - Tiled map display and management
+ - Sound extension
+ - State Manager
+ - remove bindings to states somehow since they are ugly as hell and 
+   make the source unreadable (encapsulate state data?)
+ - move resource loading to own file
+ - add boundaries collision
