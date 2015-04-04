@@ -52,16 +52,9 @@ function Magic( width, height, parentId, lockMouse ) {
 
     // State management
 
-    // Each State has 4 main functions:
-    // - create, where the resources are loaded
-    // - update, where the game logic happens
-    // - render, where the stuff is printed on the screen
-
-    // TODO: add destroy(), destroyUpdate(), destroyRender(), 
-    // createUpdate(), createRender() to the functions of each state
-    
     // Boot is a special state used for the loading screen
-    // Game is the main game state,a nd the default the game is in 
+
+    // Game is the main game state, and the default the game is in 
     // after boot
 
     this.state = {
@@ -89,28 +82,27 @@ function Magic( width, height, parentId, lockMouse ) {
 	}
     };
 
-    this.state['boot'].update = function() {
-	this.loaded = _this.load.complete.length/_this.load.pending.length;
-    };
+    this.state['boot'] = new State( 
+	function() { // update
+	    this.loaded = _this.load.complete.length / 
+		_this.load.pending.length;
+	},
+	function( context ) { // render
+	    context.drawImage(this.img, 50, 50);
+	    context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
+	    context.text('FULLMONTIS', 200, 180);
 
-    this.state['boot'].render = function( context ) {
-	context.drawImage(this.img, 50, 50);
-	context.text('A GAME BY', 200, 150, '#000', 1, '20px arial ');
-	context.text('FULLMONTIS', 200, 180);
+	    var barWidth = _this.canvas.width - 20;
+	    var barHeight = 10;
+	    var barX = 10;
+	    var barY = _this.canvas.height - 20;
+	    context.rect( barX-1.5, barY-1.5, 
+			  barWidth+3, barHeight+3, '#666', 1, true );
+	    context.rect( barX, barY, 
+			  barWidth*this.loaded, barHeight, '#333' );
+	});
 
-	var barWidth = _this.canvas.width - 20;
-	var barHeight = 10;
-	var barX = 10;
-	var barY = _this.canvas.height - 20;
-	context.rect( barX-1.5, barY-1.5, barWidth+3, barHeight+3, '#666', 1, true );
-	context.rect( barX, barY, barWidth*this.loaded, barHeight, '#333' );
-    };
-
-    this.state['game'].update = function() {
-    };
-
-    this.state['game'].render = function() {
-    };
+    this.state['game'] = new State();
 
     // Game starts here
     this.start = function() {
