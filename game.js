@@ -1,4 +1,8 @@
+"use strict";
+
 var game = new Magic( 400, 300, 'game' );
+var mouse = new Mouse( game.canvas );
+var keys = new Keyboard();
 
 game.preload = function() {
     this.load.image('player','img/player.png');
@@ -20,13 +24,15 @@ game.state['game'].create = function() {
 }.bind(game);
 
 game.state['game'].update = function(dt) {
+    
+
     var posx = 0;
     var posy = 0;
 
-    if(this.keyboard.isDown['left']) { posx -= 4; }
-    if(this.keyboard.isDown['right']) { posx += 4; }
-    if(this.keyboard.isDown['up']) { posy -= 4; }
-    if(this.keyboard.isDown['down']) { posy += 4; }
+    if(keys.isDown['left']) { posx -= 4; }
+    if(keys.isDown['right']) { posx += 4; }
+    if(keys.isDown['up']) { posy -= 4; }
+    if(keys.isDown['down']) { posy += 4; }
 
     if(!this.walls.collidesWith( this.player, 0, 0, posx, 0 )) {
 	this.player.x += posx;
