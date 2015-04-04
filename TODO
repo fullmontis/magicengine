@@ -12,3 +12,4 @@
  - add boundaries collision
  - improve framerate (there are some dropped frames)
  - add fps counter
+ - Separate sprite and bounding box?

@@ -15,18 +15,22 @@ game.preload = function() {
 game.state['game'].create = function() {
     this.player = new Sprite( 100, 100, 16, 16, 
 			      this.image['player'] );
-
     this.walls = new Group();
-    this.walls.add('wall1', 200, 200, 16, 16, this.image['wall']);
-    this.walls.add('wall2', 250, 200, 16, 16, this.image['wall']);
-    this.walls.add('wall3', 267, 200, 16, 16, this.image['wall']);
-    this.walls.add('wall4', 20, 150, 16, 16,  this.image['wall']);
-    this.walls.add('wall5', 200, 180, 16, 16, this.image['wall']);
+    this.i = 0;
 };
 
 game.state['game'].update = function( dt ) {
-
+    mouse.update();
     fps.update();
+
+    if( mouse.left.isClicked ) {
+	this.walls.add('wall' + this.i,
+		       ((mouse.x/16)|0)*16,  
+		       ((mouse.y/16)|0)*16,  
+		       16, 16, this.image['wall']);
+	this.i++;
+	this.sound['step'].playFromStart();
+    }
 
     var posx = 0;
     var posy = 0;
@@ -43,6 +47,8 @@ game.state['game'].update = function( dt ) {
     if(!this.walls.collidesWith( this.player, 0, 0, 0, posy )) {
 	this.player.y += posy;
     }
+    
+    keys.clear();
 };
 
 game.state['game'].render = function( context ) {
