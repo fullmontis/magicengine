@@ -23,8 +23,7 @@ game.state['game'].create = function() {
     this.walls.add('wall5', 200, 180, 16, 16, this.image['wall']);
 }.bind(game);
 
-game.state['game'].update = function(dt) {
-    
+game.state['game'].update = function( dt ) {
 
     var posx = 0;
     var posy = 0;

@@ -10,3 +10,5 @@
    make the source unreadable (encapsulate state data?)
  - move resource loading to own file
  - add boundaries collision
+ - improve framerate (there are some dropped frames)
+ - add fps counter

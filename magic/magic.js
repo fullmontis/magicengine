@@ -1,30 +1,10 @@
-/*
- MagicEngine: an HTML5 framework for rapid prototyping
-
- TODO:
- - Tiled map display and management
- - Sound extension
- - State Manager
- - Randomizers
- - remove bindings to functions since they are ugly as hell and 
-   make the source unreadable
- - remove _this variable
- - put input on separate class
- - create class for State
- - add boundaries
-*/
-
-// canvas API extension
+// MagicEngine: an HTML5 framework for rapid prototyping
 
 "use strict";
-
-// Main class
 
 function Magic( width, height, parentId, lockMouse ) {
 
     var _this = this; // used for reference in objects, ugly as death, must remove
-
-    this.preload = function() {};
 
     // Find useable audio extensions for the browser
     this.audioCodec = (function() {
@@ -39,16 +19,12 @@ function Magic( width, height, parentId, lockMouse ) {
 	}
     })();
 
-    // game logic update frequency
-    this.FPS = 60;
-
     // The main canvas element on which we are going to operate
     this.canvas = document.createElement('canvas');
-
-    // inject canvas into DOM
-    document.getElementById(parentId).appendChild(this.canvas);
     this.canvas.width = width;
     this.canvas.height = height;
+
+    document.getElementById(parentId).appendChild(this.canvas);
 
     this.canvas.oncontextmenu = function() { return false; };
  
@@ -140,7 +116,6 @@ function Magic( width, height, parentId, lockMouse ) {
 	this.state['boot'].img.src = 'img/boot.png';
     };
 
-
     // Assets loading and management
 
     this.load = {};
@@ -183,7 +158,13 @@ function Magic( width, height, parentId, lockMouse ) {
 
     this.load.sound = function( soundId, oggUrl, aacUrl ) {
 	var url;
-	if( this.audioCodec == 'ogg' ) url = oggUrl; else url = aacUrl;
+
+	if( this.audioCodec == 'ogg' ) {
+	    url = oggUrl;  
+	} else {
+	    url = aacUrl;
+	} 
+
 	this.sound[soundId] = new Audio();
 	this.sound[soundId].oncanplaythrough = this.loaded(soundId);
 	this.sound[soundId].src = url;
@@ -205,31 +186,51 @@ function Magic( width, height, parentId, lockMouse ) {
 	this.load.pending.push(mapId);
     }.bind(this);
 
-    // resource preload
+    // Resource preload function, will be overwritten by game
+
+    this.preload = function() {};
 
     this.preloadWrapper = function() {
 	this.preload();
 	this.mainLoop();
     };
+    
+    // Main loop logic
 
-    // The main game loop
+    var lastTime = Date.now();
+    var nowTime = lastTime;
+    var timer = 0;
+    var drawFPSTimer = 0;
+    var frames = 0;
+    var fps = 0;
 
     this.mainLoop = function () {
-	// set timeout for game logic
-	setTimeout( this.updateWrapper.bind(this), 1000 / this.FPS );
 
-	// call next frame
-	requestAnimationFrame( this.renderWrapper.bind(this) );
-    };
+	// calculate FPS
+	nowTime = Date.now();
+	timer += (nowTime - lastTime) / 1000;
+	lastTime = nowTime;
 
-    this.updateWrapper = function() {
+	frames++;
+	drawFPSTimer++;
+
+	if( drawFPSTimer > 60 ) { // update every sixty frames
+	    fps = frames / timer;
+	    drawFPSTimer = 0;
+	    timer = 0;
+	    frames = 0;
+	}
+
+	// update game logic
 	this.state.update();
-	setTimeout( this.updateWrapper.bind(this), 1000 / this.FPS );
-    };
 
-    this.renderWrapper = function() {
+	// paint next frame
 	this.context.fill();
 	this.state.render( this.context );
-	requestAnimationFrame( this.renderWrapper.bind(this) );
-    };
+	this.context.text( fps.toFixed(1), 20, 30 );
+	
+	// call next frame
+	requestAnimationFrame( this.mainLoop );
+
+    }.bind(this);
 }
