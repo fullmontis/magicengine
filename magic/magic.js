@@ -67,13 +67,16 @@ function Magic( width, height, parentId, lockMouse ) {
     this.state = {
 	boot: {},
 	game: {},
-	current: 'boot',
-	changeTo: function( newState ) {
-	    this.current = newState;
-	    this[this.current].create();
+	stack: ['boot'],
+	push: function( newState ) {
+	    this.stack.push(newState);
+	    this.getCurrent().create();
+	},
+	pop: function() {
+	    this.stack.pop();
 	},
 	getCurrent: function() {
-	    return this[this.current];
+	    return this[this.stack[this.stack.length-1]];
 	},
 
 	// this acts as a wrapper for the current state
@@ -144,7 +147,7 @@ function Magic( width, height, parentId, lockMouse ) {
 		}
 		
 		// start the actual game
-		this.state.changeTo('game');
+		this.state.push('game');
 	    }
 	}.bind(this);
     };
@@ -197,29 +200,7 @@ function Magic( width, height, parentId, lockMouse ) {
     
     // Main loop logic
 
-    var lastTime = Date.now();
-    var nowTime = lastTime;
-    var timer = 0;
-    var drawFPSTimer = 0;
-    var frames = 0;
-    var fps = 0;
-
     this.mainLoop = function () {
-
-	// calculate FPS
-	nowTime = Date.now();
-	timer += (nowTime - lastTime) / 1000;
-	lastTime = nowTime;
-
-	frames++;
-	drawFPSTimer++;
-
-	if( drawFPSTimer > 60 ) { // update every sixty frames
-	    fps = frames / timer;
-	    drawFPSTimer = 0;
-	    timer = 0;
-	    frames = 0;
-	}
 
 	// update game logic
 	this.state.update();
@@ -227,8 +208,7 @@ function Magic( width, height, parentId, lockMouse ) {
 	// paint next frame
 	this.context.fill();
 	this.state.render( this.context );
-	this.context.text( fps.toFixed(1), 20, 30 );
-	
+
 	// call next frame
 	requestAnimationFrame( this.mainLoop );
 

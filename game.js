@@ -3,6 +3,7 @@
 var game = new Magic( 400, 300, 'game' );
 var mouse = new Mouse( game.canvas );
 var keys = new Keyboard();
+var fps = new FPS();
 
 game.preload = function() {
     this.load.image('player','img/player.png');
@@ -25,6 +26,8 @@ game.state['game'].create = function() {
 
 game.state['game'].update = function( dt ) {
 
+    fps.update();
+
     var posx = 0;
     var posy = 0;
 
@@ -45,6 +48,7 @@ game.state['game'].update = function( dt ) {
 game.state['game'].render = function( context ) {
     this.walls.render( context );
     this.player.render( context );
+    fps.render( context );
 }.bind(game);
 
 game.start();
