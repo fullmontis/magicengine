@@ -16,6 +16,7 @@ game.state['game'].create = function() {
     this.player = new Sprite( 100, 100, 16, 16, 
 			      this.image['player'] );
     this.walls = new Group();
+    this.bound = new Boundary( 50, 50, 300, 200);
     this.i = 0;
 };
 
@@ -40,18 +41,25 @@ game.state['game'].update = function( dt ) {
     if(keys.isDown['up']) { posy -= 4; }
     if(keys.isDown['down']) { posy += 4; }
 
-    if(!this.walls.collidesWith( this.player, 0, 0, posx, 0 )) {
-	this.player.x += posx;
+
+    if( this.walls.collidesWith(this.player, 0, 0, posx, 0) ||
+        !this.bound.contains(this.player, posx, 0) ) {
+	posx = 0;
     }
 
-    if(!this.walls.collidesWith( this.player, 0, 0, 0, posy )) {
-	this.player.y += posy;
+    if( this.walls.collidesWith( this.player, 0, 0, 0, posy ) ||
+        !this.bound.contains(this.player, 0, posy) ) {
+	posy = 0;
     }
     
+    this.player.x += posx;
+    this.player.y += posy;
+
     keys.clear();
 };
 
 game.state['game'].render = function( context ) {
+    this.bound.render( context );
     this.walls.render( context );
     this.player.render( context );
     fps.render( context );
