@@ -1,8 +1,9 @@
-function Boundary ( x, y, w, h ) {
+function Boundary ( x, y, w, h, color ) {
     this.x = x;
     this.y = y;
     this.width = w;
     this.height = h;
+    this.color = color;
 } 
 
 Boundary.prototype.x = 0;
@@ -27,5 +28,5 @@ Boundary.prototype.contains = function( sprite, dx, dy ) {
 };
 
 Boundary.prototype.render = function( context ) {
-    context.rect(this.x, this.y, this.width, this.height);
-}
+    context.rect(this.x, this.y, this.width, this.height, this.color );
+};

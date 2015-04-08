@@ -1,5 +1,7 @@
 // Sprite 
 
+var SPRITE_NO_IMG = -1;
+
 function Sprite( x, y, width, height, image, anchorX, anchorY ) {
     this.x = x;
     this.y = y;
