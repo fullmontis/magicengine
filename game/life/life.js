@@ -28,7 +28,7 @@ game.state['game'].update = function() {
 
 game.state['game'].render = function( context ) {
     fps.render( context );
-    this.font.render( context, 'ciao tonto 111', 100, 100 );
+    this.font.render( context, 'ciao tonto 111', 100, 100, 3 );
 };
 
 game.start();

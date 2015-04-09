@@ -1,7 +1,7 @@
 // Canvas2DContext Extension
 
-CanvasRenderingContext2D.prototype.fillColor = "#ccc"; 
-
+CanvasRenderingContext2D.prototype.fillColor = "#ccc";
+ 
 CanvasRenderingContext2D.prototype.rect = 
     function( x, y, w, h, color, alpha, stroke ) {
 	if( x === undefined ||

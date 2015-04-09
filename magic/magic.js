@@ -46,6 +46,11 @@ function Magic( width, height, parentId, lockMouse ) {
 
     this.context = this.canvas.getContext('2d');
     this.context.font = "30px Arial";
+    
+    // Disable image filtering, use nearest neighbour
+    this.context.imageSmoothingEnabled = false;
+    this.context.mozImageSmoothingEnabled = false;
+    this.context.webkitImageSmoothingEnabled = false;
 
     // background color
     this.context.fillColor = '#fff';

@@ -30,16 +30,17 @@ function Font( bitmap, fontChars, fontWidth, fontHeight, fontSpace, fontBottom )
 	];
     }
     
-    this.render = function( context, string, x, y ) {
+    this.render = function( context, string, x, y, scale ) {
+	scale = scale || 1;
 	for( var i=0; i < string.length; i++ ) {
 	    if( string[i] != ' ' ) { // no need to waste time rendering spaces :D
 		context.drawImage( this.bitmap, 
 				   this.hash[string.charCodeAt(i)][0], 
 				   this.hash[string.charCodeAt(i)][1],
 				   this.fontWidth, this.fontHeight,
-				   x + i * (this.fontWidth + this.fontSpace), 
-				   y - this.fontBottom,
-				   this.fontWidth, this.fontHeight );
+				   x + i * (this.fontWidth + this.fontSpace) * scale, 
+				   y - this.fontBottom * scale,
+				   this.fontWidth * scale, this.fontHeight * scale );
 	    }
 	}
     };
