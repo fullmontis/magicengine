@@ -35,13 +35,29 @@ Group.prototype.render = function( context ) {
 };
 
 Group.prototype.collidesWith = 
-    function( otherSprite, thisOffsetX, thisOffsetY, otherOffsetX, otherOffsetY ) {
+    function( otherSprite, otherOffsetX, otherOffsetY ) {
 	for( var spriteName in this.group ) {
 	    var collide = this.group[spriteName].collidesWith(
-		otherSprite, thisOffsetX, thisOffsetY, otherOffsetX, otherOffsetY );
+		otherSprite, otherOffsetX, otherOffsetY );
 	    if( collide ) {
 		return true;
 	    }
 	}
 	return false;
     };
+
+// Add objects on Tiled map layer as sprites (usually used for collision detections
+
+// TODO: use layer names instead of IDs
+
+Group.prototype.createFromLayer = function( map, layerNumber ) {
+    var objects = map.layers[layerNumber].objects;
+    
+    for( var i = 0; i < objects.length; i++ ) {
+	console.log(objects[i]);
+	this.add( i.toString(), new Sprite(objects[i].x, 
+					   objects[i].y, 
+					   objects[i].width, 
+					   objects[i].height) );
+    }
+};
