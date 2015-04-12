@@ -9,8 +9,8 @@ function Group() {
     this.group = {};
 };
 
-Group.prototype.add = function( spriteName, x, y, width, height, image, anchorX, anchorY ) {
-    this.group[spriteName] = new Sprite( x, y, width, height, image, anchorX, anchorY );
+Group.prototype.add = function( spriteName, sprite ) {
+    this.group[spriteName] = sprite;
 };
 
 Group.prototype.remove = function( spriteName ) {
