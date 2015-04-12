@@ -1,5 +1,7 @@
 // Sprite 
 
+// image value for no image to be shown (render box instead)
+
 var SPRITE_NO_IMG = -1;
 
 function Sprite( x, y, width, height, image, anchorX, anchorY ) {
@@ -7,7 +9,7 @@ function Sprite( x, y, width, height, image, anchorX, anchorY ) {
     this.y = y;
     this.width = width;
     this.height = height;
-    this.image = image;
+    this.image = image || SPRITE_NO_IMG;
     this.anchor.x = anchorX || 0; 
     this.anchor.y = anchorY || anchorX || 0;
 }
@@ -77,14 +79,12 @@ Sprite.prototype.render = function( context ) {
 // checks collision with another sprite
 
 Sprite.prototype.collidesWith = 
-    function( otherSprite, thisOffsetX, thisOffsetY, otherOffsetX, otherOffsetY ) {
-	thisOffsetX = thisOffsetX || 0;
-	thisOffsetY = thisOffsetY || 0;
+    function( otherSprite, otherOffsetX, otherOffsetY ) {
 	otherOffsetX = otherOffsetX || 0;
 	otherOffsetY = otherOffsetY || 0;
 
-	var x1 = this.getRenderX() + thisOffsetX;
-	var y1 = this.getRenderY() + thisOffsetY;
+	var x1 = this.getRenderX();
+	var y1 = this.getRenderY();
 	var w1 = this.width;
 	var h1 = this.height;
 
@@ -97,6 +97,33 @@ Sprite.prototype.collidesWith =
 	    x1 + w1 > x2 &&
 	    y1 < y2 + h2 &&
 	    y1 + h1 > y2 ){
+		return true;
+	    } else {
+		return false; 
+	    }
+    };
+
+// checks if this sprite contains another one (for boundary detection)
+
+Sprite.prototype.contains = 
+    function( otherSprite, otherOffsetX, otherOffsetY ) {
+	otherOffsetX = otherOffsetX || 0;
+	otherOffsetY = otherOffsetY || 0;
+
+	var x1 = this.getRenderX();
+	var y1 = this.getRenderY();
+	var w1 = this.width;
+	var h1 = this.height;
+
+	var x2 = otherSprite.getRenderX() + otherOffsetX;
+	var y2 = otherSprite.getRenderY() + otherOffsetY;
+	var w2 = otherSprite.width;
+	var h2 = otherSprite.height;
+
+	if( x2 >= x1 &&
+	    x2 + w2 <= x1 + w1  &&
+	    y2 >= y1 &&
+	    y2 + h2 <= y1 + h1 ) {
 		return true;
 	    } else {
 		return false; 

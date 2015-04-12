@@ -21,8 +21,8 @@ game.state['game'].create = function() {
 			  'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + 
 			  'abcdefghijklmnopqrstuvwxyz' + 
 			  '1234567890!?\'"#%', 5, 11, 1, 3 );
-    this.bound = new Boundary( 32, 32, 576, 416 );
-    this.player = new Player( 100, 100, 32, 32, SPRITE_NO_IMG );
+    this.bound = new Sprite( 32, 32, 576, 416 );
+    this.player = new Player( 32, 32, 32, 32, SPRITE_NO_IMG );
     this.tileset = new Tileset( this.image['tile'], 32, 32 );
 
     this.level = new Map(
