@@ -2,7 +2,7 @@
 
 // image value for no image to be shown (render box instead)
 
-var SPRITE_NO_IMG = -1;
+var SPRITE_NO_IMG = 0;
 
 function Sprite( x, y, width, height, image, anchorX, anchorY ) {
     this.x = x;
@@ -10,8 +10,8 @@ function Sprite( x, y, width, height, image, anchorX, anchorY ) {
     this.width = width;
     this.height = height;
     this.image = image || SPRITE_NO_IMG;
-    this.anchor.x = anchorX || 0; 
-    this.anchor.y = anchorY || anchorX || 0;
+    this.anchorX = anchorX || 0; 
+    this.anchorY = anchorY || anchorX || 0;
 }
 
 Sprite.prototype.x = 0;
@@ -24,31 +24,30 @@ Sprite.prototype.height = 16;
 Sprite.prototype.angle = 0;
 
 // image must be a proper image link
-// If image == -1, it renders a rectangle filled with the color 
+// If image == SPRITE_NO_IMG, it renders a rectangle filled with the color 
 // defined by Sprite.prototype.fill
 
 // This makes using debug graphics much easier and quick when prototyping
 // or for placeholder graphics
 
-Sprite.prototype.image = -1;
+Sprite.prototype.image = SPRITE_NO_IMG;
 Sprite.prototype.fill = '#f00';
 
 // anchor point represents the point on the sprite where the x and y are positioned
 // value goes from 0 to 1
 
-Sprite.prototype.anchor = {};
-Sprite.prototype.anchor.x = 0; // 0: left, 1: right
-Sprite.prototype.anchor.y = 0; // 0: top, 1: bottom
+Sprite.prototype.anchorX = 0; // 0: left, 1: right
+Sprite.prototype.anchorY = 0; // 0: top, 1: bottom
 
 // getRenderX and getRenderY calcucate the x and y considering the anchor point. 
 // This is to avoid annoying computations when writing rendering code
 
 Sprite.prototype.getRenderX = function() {
-    return this.x - Math.floor(this.anchor.x * this.width);
+    return this.x - (this.anchorX * this.width) | 0;
 };
 
 Sprite.prototype.getRenderY = function() {
-    return this.y - Math.floor(this.anchor.y * this.height);
+    return this.y - (this.anchorY * this.height) | 0;
 };
 
 // The Sprite.prototype.update function is not called anywhere by default. 
@@ -66,13 +65,13 @@ Sprite.prototype.update = function( dt ) {};
 // TODO: add sprite rotation
 
 Sprite.prototype.render = function( context ) {
-    if( this.image != -1 ) {
+    if( this.image == SPRITE_NO_IMG ) {
+	context.rect( this.getRenderX(), this.getRenderY(), 
+		      this.width, this.height, this.fill );
+    } else {
 	context.drawImage( this.image, 
 			   this.getRenderX(), this.getRenderY(), 
 			   this.width, this.height );
-    } else {
-	context.rect( this.getRenderX(), this.getRenderY(), 
-		      this.width, this.height, this.fill );
     } 
 };
 

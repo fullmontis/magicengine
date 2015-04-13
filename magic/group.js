@@ -60,7 +60,21 @@ Group.prototype.contains =
 
 // TODO: use layer names instead of IDs
 
-Group.prototype.createFromLayer = function( map, layerNumber ) {
+Group.prototype.createFromLayer = function( map, layerName ) {
+    var layerNumber = -1;
+
+    for( var i = 0; i < map.layers.length; i++ ) {
+	if( map.layers[i].name == layerName ) {
+	    layerNumber = i;
+	    break;
+	}
+    }
+
+    if( layerNumber == -1 ) {
+	throw( 'Group.createFromLayer: Error: layer ' 
+	       + layerName + ' is not part of the provided map' );
+    }
+
     var objects = map.layers[layerNumber].objects;
     
     for( var i = 0; i < objects.length; i++ ) {

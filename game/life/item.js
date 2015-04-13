@@ -7,10 +7,8 @@ function Item( x, y, name ) {
     this.height = 16;
     this.name = name;
     this.showName = false;
-    this.anchor = {
-	x: 0.5,
-	y: 0.5
-    };
+    this.anchorX = 0.5;
+    this.anchorY = 0.5;
 
     this.update = function( player ) {
 	if( player.collidesWith(this) ) {

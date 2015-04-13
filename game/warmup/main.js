@@ -24,7 +24,8 @@ game.state['game'].create = function() {
 			  '1234567890!?\'"#%', 5, 11, 1, 3 );
     this.bound = new Sprite( 32, 32, 576, 416 );
     this.group = new Group();
-    this.group.createFromLayer( this.map.ghost, 1 );
+    this.group.createFromLayer( this.map['ghost'], 'collision' );
+    
     this.fog = new Sprite( 32, 32, 150, 150, this.image['fog'], 0.5, 0.5 );
 
     this.fog.update = function( player ) {
@@ -32,7 +33,7 @@ game.state['game'].create = function() {
 	this.y = player.y;
     };
 
-    this.player = new Player( 32, 32, 16, 16, SPRITE_NO_IMG );
+    this.player = new Player( 50, 50, 16, 16 );
     this.tileset = new Tileset( this.image['tile'], 32, 32 );
 
     this.level = new Map(
@@ -44,7 +45,7 @@ game.state['game'].create = function() {
 game.state['game'].update = function() {
     mouse.update();
     fps.update();
-    this.player.update( this.group, keys );
+    this.player.update( this.group, this.bound, keys );
     this.fog.update( this.player );
     keys.clear();
 };
@@ -64,6 +65,8 @@ game.state['game'].render = function( context ) {
     context.globalCompositeOperation = 'destination-atop';
     context.fillColor = '#000';
     context.fill();
+    
+    
 
     context.restore();
 
