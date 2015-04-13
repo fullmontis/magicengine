@@ -206,7 +206,6 @@ function Magic( width, height, parentId, lockMouse ) {
 	this.state.update();
 
 	// paint next frame
-	this.context.fill();
 	this.state.render( this.context );
 
 	// call next frame

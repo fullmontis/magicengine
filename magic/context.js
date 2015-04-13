@@ -94,8 +94,14 @@ CanvasRenderingContext2D.prototype.text =
 
 CanvasRenderingContext2D.prototype.fill = 
     function() {
-	this.rect( 0, 0, 
-		   this.canvas.width, this.canvas.height, 
-		   this.fillColor );
+	this.fillStyle = this.fillColor;
+	this.fillRect( 0, 0, 
+		       this.canvas.width, 
+		       this.canvas.height );
     };
 
+CanvasRenderingContext2D.prototype.clear = 
+    function() {
+	this.clearRect(0, 0, this.canvas.width, this.canvas.height,
+		       this.fillColor);
+    };

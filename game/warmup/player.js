@@ -7,7 +7,7 @@ function Player( x, y, w, h, image ) {
     
     this.speed = 6;
 
-    this.update = function( bound, keys ) {
+    this.update = function( group, keys ) {
 	var posx = 0;
 	var posy = 0;
 
@@ -16,11 +16,11 @@ function Player( x, y, w, h, image ) {
 	if(keys.isDown['up']) { posy -= this.speed; }
 	if(keys.isDown['down']) { posy += this.speed; }
 
-	if( !bound.contains(this, posx, 0) ) {
+	if( !group.collidesWith(this, posx, 0) ) {
 	    posx = 0;
 	}
 
-	if( !bound.contains(this, 0, posy) ) {
+	if( !group.collidesWith(this, 0, posy) ) {
 	    posy = 0;
 	}
 	

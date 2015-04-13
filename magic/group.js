@@ -37,9 +37,19 @@ Group.prototype.render = function( context ) {
 Group.prototype.collidesWith = 
     function( otherSprite, otherOffsetX, otherOffsetY ) {
 	for( var spriteName in this.group ) {
-	    var collide = this.group[spriteName].collidesWith(
-		otherSprite, otherOffsetX, otherOffsetY );
-	    if( collide ) {
+	    if( this.group[spriteName].collidesWith(
+		otherSprite, otherOffsetX, otherOffsetY ) ) {
+		return true;
+	    }
+	}
+	return false;
+    };
+
+Group.prototype.contains = 
+    function( otherSprite, otherOffsetX, otherOffsetY ) {
+	for( var spriteName in this.group ) {
+	    if( this.group[spriteName].contains(
+		otherSprite, otherOffsetX, otherOffsetY) ) {
 		return true;
 	    }
 	}
@@ -54,7 +64,6 @@ Group.prototype.createFromLayer = function( map, layerNumber ) {
     var objects = map.layers[layerNumber].objects;
     
     for( var i = 0; i < objects.length; i++ ) {
-	console.log(objects[i]);
 	this.add( i.toString(), new Sprite(objects[i].x, 
 					   objects[i].y, 
 					   objects[i].width, 
